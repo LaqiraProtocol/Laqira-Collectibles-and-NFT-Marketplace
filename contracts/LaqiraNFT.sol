@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract LaqiraNFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
-    uint256 private NFTCounter;
     uint256 private mintingFee;
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
