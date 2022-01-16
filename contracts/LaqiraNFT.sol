@@ -21,9 +21,9 @@ contract LaqiraNFT is ERC721URIStorage, Ownable {
     }
 
     function mint(string memory _tokenURI) public payable {
-        uint256 transfferdAmount = msg.value;
+        uint256 transferredAmount = msg.value;
         
-        require(transfferdAmount >= mintingFee, '');
+        require(transferredAmount >= mintingFee, '');
 
         _tokenIds.increment();
         
