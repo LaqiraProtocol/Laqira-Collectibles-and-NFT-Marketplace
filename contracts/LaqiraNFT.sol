@@ -16,10 +16,6 @@ contract LaqiraNFT is ERC721URIStorage, Ownable {
         
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return "ipfs://";
-    }
-
     function mint(string memory _tokenURI) public payable {
         uint256 transferredAmount = msg.value;
         
@@ -36,5 +32,9 @@ contract LaqiraNFT is ERC721URIStorage, Ownable {
 
     function setMintingFeeAmount(uint256 _amount) public onlyOwner {
         mintingFee = _amount;       
+    }
+
+    function _baseURI() internal view override returns (string memory) {
+        return "ipfs://";
     }
 }
