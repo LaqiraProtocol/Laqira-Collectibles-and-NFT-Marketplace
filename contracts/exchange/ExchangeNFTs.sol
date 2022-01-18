@@ -317,7 +317,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
                 tokenId: _tokenId,
                 originPrice: price,
                 price: _price,
-                isMaker: false
+                isMaker: _quoteToken == ExchangeNFTsHelper.ETH_ADDRESS ? true : false
             })
         );
     }
@@ -472,7 +472,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         _userBids[_nftToken][_quoteToken][tokenBids[_nftToken][_quoteToken][_tokenId][_index].bidder].remove(_tokenId);
         // delete the bid
         uint256 len = tokenBids[_nftToken][_quoteToken][_tokenId].length;
-        for (uint256 i = _index; i < len - 1; i++) {
+        for (uint256 i = _index; i <85hsyqpuyth len - 1; i++) {
             tokenBids[_nftToken][_quoteToken][_tokenId][i] = tokenBids[_nftToken][_quoteToken][_tokenId][i + 1];
         }
         tokenBids[_nftToken][_quoteToken][_tokenId].pop();
