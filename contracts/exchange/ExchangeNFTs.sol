@@ -409,4 +409,57 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         tokenBids[_nftToken][_quoteToken][_tokenId].push(BidEntry({bidder: _to, price: _price}));
         emit Bid(_nftToken, _to, _tokenId, _quoteToken, _price);
     }
+
+     function batchUpdateBidPrice(
+        address[] memory _nftTokens,
+        uint256[] memory _tokenIds,
+        address[] memory _quoteTokens,
+        uint256[] memory _prices
+    ) external override {
+        require(
+            _nftTokens.length == _tokenIds.length &&
+                _tokenIds.length == _quoteTokens.length &&
+                _quoteTokens.length == _prices.length,
+            'length err'
+        );
+        for (uint256 i = 0; i < _nftTokens.length; i++) {
+            updateBidPrice(_nftTokens[i], _tokenIds[i], _quoteTokens[i], _prices[i]);
+        }
+    }
+
+    function updateBidPrice(
+        address _nftToken,
+        uint256 _tokenId,
+        address _quoteToken,
+        uint256 _price
+    ) public payable override nonReentrant {
+        config.whenSettings(5, 0);
+        config.checkEnableTrade(_nftToken, _quoteToken);
+        require(
+            _userBids[_nftToken][_quoteToken][_msgSender()].contains(_tokenId),
+            'Only Bidder can update the bid price'
+        );
+        require(_price != 0, 'Price must be granter than zero');
+        address _to = _msgSender(); // find  bid and the index
+        (BidEntry memory bidEntry, uint256 _index) = getBidByTokenIdAndAddress(_nftToken, _quoteToken, _tokenId, _to);
+        require(bidEntry.price != 0, 'Bidder does not exist');
+        require(bidEntry.price != _price, 'The bid price cannot be the same');
+        require(
+            (_quoteToken != ExchangeNFTsHelper.ETH_ADDRESS && msg.value == 0) ||
+                _quoteToken == ExchangeNFTsHelper.ETH_ADDRESS,
+            'error msg value'
+        );
+        if (_price > bidEntry.price) {
+            require(
+                _quoteToken != ExchangeNFTsHelper.ETH_ADDRESS || msg.value == _price.sub(bidEntry.price),
+                'error msg value.'
+            );
+            ExchangeNFTsHelper.transferToken(_quoteToken, _msgSender(), address(this), _price.sub(bidEntry.price));
+        } else {
+            ExchangeNFTsHelper.transferToken(_quoteToken, address(this), _msgSender(), bidEntry.price.sub(_price));
+        }
+        _userBids[_nftToken][_quoteToken][_to].set(_tokenId, _price);
+        tokenBids[_nftToken][_quoteToken][_tokenId][_index] = BidEntry({bidder: _to, price: _price});
+        emit Bid(_nftToken, _to, _tokenId, _quoteToken, _price);
+    }
 }
