@@ -142,4 +142,38 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         tokenSelleStatus[_nftToken][_tokenId] = _selleStatus;
         emit Ask(_nftToken, _msgSender(), _tokenId, _quoteToken, _price);
     }
+
+    function batchSetCurrentPrice(
+        address[] memory _nftTokens,
+        uint256[] memory _tokenIds,
+        address[] memory _quoteTokens,
+        uint256[] memory _prices
+    ) external override {
+        require(
+            _nftTokens.length == _tokenIds.length &&
+                _tokenIds.length == _quoteTokens.length &&
+                _quoteTokens.length == _prices.length,
+            'length err'
+        );
+        for (uint256 i = 0; i < _nftTokens.length; i++) {
+            setCurrentPrice(_nftTokens[i], _tokenIds[i], _quoteTokens[i], _prices[i]);
+        }
+    }
+
+    function setCurrentPrice(
+        address _nftToken,
+        uint256 _tokenId,
+        address _quoteToken,
+        uint256 _price
+    ) public override nonReentrant {
+        config.whenSettings(1, 0);
+        config.checkEnableTrade(_nftToken, _quoteToken);
+        require(
+            _userSellingTokens[_nftToken][_quoteToken][_msgSender()].contains(_tokenId),
+            'Only Seller can update price'
+        );
+        require(_price != 0, 'Price must be granter than zero');
+        _asksMaps[_nftToken][_quoteToken].set(_tokenId, _price);
+        emit Ask(_nftToken, _msgSender(), _tokenId, _quoteToken, _price);
+    }
 }
