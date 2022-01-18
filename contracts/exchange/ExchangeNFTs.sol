@@ -346,4 +346,67 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         delete tokenSelleOn[_nftToken][_tokenId];
         delete tokenSelleStatus[_nftToken][_tokenId];
     }
+
+    // bid
+    function batchBidToken(
+        address[] memory _nftTokens,
+        uint256[] memory _tokenIds,
+        address[] memory _quoteTokens,
+        uint256[] memory _prices
+    ) external override {
+        batchBidTokenTo(_nftTokens, _tokenIds, _quoteTokens, _prices, _msgSender());
+    }
+
+    function batchBidTokenTo(
+        address[] memory _nftTokens,
+        uint256[] memory _tokenIds,
+        address[] memory _quoteTokens,
+        uint256[] memory _prices,
+        address _to
+    ) public override {
+        require(
+            _nftTokens.length == _tokenIds.length &&
+                _tokenIds.length == _quoteTokens.length &&
+                _quoteTokens.length == _prices.length,
+            'length err'
+        );
+        for (uint256 i = 0; i < _nftTokens.length; i++) {
+            bidTokenTo(_nftTokens[i], _tokenIds[i], _quoteTokens[i], _prices[i], _to);
+        }
+    }
+
+    function bidToken(
+        address _nftToken,
+        uint256 _tokenId,
+        address _quoteToken,
+        uint256 _price
+    ) external payable override {
+        bidTokenTo(_nftToken, _tokenId, _quoteToken, _price, _msgSender());
+    }
+
+    function bidTokenTo(
+        address _nftToken,
+        uint256 _tokenId,
+        address _quoteToken,
+        uint256 _price,
+        address _to
+    ) public payable override nonReentrant {
+        config.whenSettings(4, 0);
+        config.checkEnableTrade(_nftToken, _quoteToken);
+        require(_price != 0, 'Price must be granter than zero');
+        require(_asksMaps[_nftToken][_quoteToken].contains(_tokenId), 'Token not in sell book');
+        require(tokenSellers[_nftToken][_tokenId] != _to, 'Owner cannot bid');
+        require(!_userBids[_nftToken][_quoteToken][_to].contains(_tokenId), 'Bidder already exists');
+        require(
+            (msg.value == 0 && _quoteToken != ExchangeNFTsHelper.ETH_ADDRESS) ||
+                (_quoteToken == ExchangeNFTsHelper.ETH_ADDRESS && msg.value == _price),
+            'error msg value'
+        );
+        if (_quoteToken != ExchangeNFTsHelper.ETH_ADDRESS) {
+            TransferHelper.safeTransferFrom(_quoteToken, _msgSender(), address(this), _price);
+        }
+        _userBids[_nftToken][_quoteToken][_to].set(_tokenId, _price);
+        tokenBids[_nftToken][_quoteToken][_tokenId].push(BidEntry({bidder: _to, price: _price}));
+        emit Bid(_nftToken, _to, _tokenId, _quoteToken, _price);
+    }
 }
