@@ -8,7 +8,10 @@ import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
-
+import './libraries/EnumerableMap.sol';
+import './libraries/ExchangeNFTsHelper.sol';
 contract ExchangeNFTs {
-
+    using SafeMath for uint256;
+    using EnumerableMap for EnumerableMap.UintToUintMap;
+    using EnumerableSet for EnumerableSet.UintSet;
 }
