@@ -321,4 +321,29 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
             })
         );
     }
+
+    function batchCancelSellToken(address[] memory _nftTokens, uint256[] memory _tokenIds) external override {
+        require(_nftTokens.length == _tokenIds.length);
+        for (uint256 i = 0; i < _nftTokens.length; i++) {
+            cancelSellToken(_nftTokens[i], _tokenIds[i]);
+        }
+    }
+
+    function cancelSellToken(address _nftToken, uint256 _tokenId) public override nonReentrant {
+        config.whenSettings(3, 0);
+        require(tokenSellers[_nftToken][_tokenId] == _msgSender(), 'Only Seller can cancel sell token');
+        IERC721(_nftToken).safeTransferFrom(address(this), _msgSender(), _tokenId);
+        _userSellingTokens[_nftToken][tokenSelleOn[_nftToken][_tokenId]][_msgSender()].remove(_tokenId);
+        emit CancelSellToken(
+            _nftToken,
+            tokenSelleOn[_nftToken][_tokenId],
+            _msgSender(),
+            _tokenId,
+            _asksMaps[_nftToken][tokenSelleOn[_nftToken][_tokenId]].get(_tokenId)
+        );
+        _asksMaps[_nftToken][tokenSelleOn[_nftToken][_tokenId]].remove(_tokenId);
+        delete tokenSellers[_nftToken][_tokenId];
+        delete tokenSelleOn[_nftToken][_tokenId];
+        delete tokenSelleStatus[_nftToken][_tokenId];
+    }
 }
