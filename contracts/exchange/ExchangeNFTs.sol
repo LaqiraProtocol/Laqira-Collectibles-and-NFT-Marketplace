@@ -10,6 +10,8 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import './libraries/EnumerableMap.sol';
 import './libraries/ExchangeNFTsHelper.sol';
+import './interfaces/IExchangeNFTs.sol';
+import './interfaces/IExchangeNFTConfiguration.sol';
 contract ExchangeNFTs {
     using SafeMath for uint256;
     using EnumerableMap for EnumerableMap.UintToUintMap;
@@ -40,4 +42,6 @@ contract ExchangeNFTs {
         uint256 tokenId;
         uint256 price;
     }
+
+    IExchangeNFTConfiguration public config;
 }
