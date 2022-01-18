@@ -12,7 +12,7 @@ import './libraries/EnumerableMap.sol';
 import './libraries/ExchangeNFTsHelper.sol';
 import './interfaces/IExchangeNFTs.sol';
 import './interfaces/IExchangeNFTConfiguration.sol';
-contract ExchangeNFTs {
+contract ExchangeNFTs is Ownable {
     using SafeMath for uint256;
     using EnumerableMap for EnumerableMap.UintToUintMap;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -59,4 +59,13 @@ contract ExchangeNFTs {
     mapping(address => mapping(address => mapping(address => EnumerableMap.UintToUintMap))) private _userBids;
     // nft => tokenId => status (0 - can sell and bid, 1 - only bid)
     mapping(address => mapping(uint256 => uint256)) tokenSelleStatus;
+
+    constructor(address _config) {
+        config = IExchangeNFTConfiguration(_config);
+    }
+
+    function setConfig(address _config) public onlyOwner {
+        require(address(config) != _config, 'forbidden');
+        config = IExchangeNFTConfiguration(_config);
+    }
 }
