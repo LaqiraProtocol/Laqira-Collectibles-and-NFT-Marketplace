@@ -12,7 +12,7 @@ import './libraries/EnumerableMap.sol';
 import './libraries/ExchangeNFTsHelper.sol';
 import './interfaces/IExchangeNFTs.sol';
 import './interfaces/IExchangeNFTConfiguration.sol';
-contract ExchangeNFTs is Ownable {
+contract ExchangeNFTs is IExchangeNFTs, Ownable {
     using SafeMath for uint256;
     using EnumerableMap for EnumerableMap.UintToUintMap;
     using EnumerableSet for EnumerableSet.UintSet;
@@ -67,5 +67,9 @@ contract ExchangeNFTs is Ownable {
     function setConfig(address _config) public onlyOwner {
         require(address(config) != _config, 'forbidden');
         config = IExchangeNFTConfiguration(_config);
+    }
+
+    function getNftQuotes(address _nftToken) public view override returns (address[] memory) {
+        return config.getNftQuotes(_nftToken);
     }
 }
