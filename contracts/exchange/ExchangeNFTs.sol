@@ -462,4 +462,51 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         tokenBids[_nftToken][_quoteToken][_tokenId][_index] = BidEntry({bidder: _to, price: _price});
         emit Bid(_nftToken, _to, _tokenId, _quoteToken, _price);
     }
+
+    function delBidByTokenIdAndIndex(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _tokenId,
+        uint256 _index
+    ) internal virtual {
+        _userBids[_nftToken][_quoteToken][tokenBids[_nftToken][_quoteToken][_tokenId][_index].bidder].remove(_tokenId);
+        // delete the bid
+        uint256 len = tokenBids[_nftToken][_quoteToken][_tokenId].length;
+        for (uint256 i = _index; i < len - 1; i++) {
+            tokenBids[_nftToken][_quoteToken][_tokenId][i] = tokenBids[_nftToken][_quoteToken][_tokenId][i + 1];
+        }
+        tokenBids[_nftToken][_quoteToken][_tokenId].pop();
+    }
+
+    function sellTokenTo(
+        address _nftToken,
+        uint256 _tokenId,
+        address _quoteToken,
+        uint256 _price,
+        address _to
+    ) public override nonReentrant {
+        config.whenSettings(6, 0);
+        config.checkEnableTrade(_nftToken, _quoteToken);
+        require(_asksMaps[_nftToken][_quoteToken].contains(_tokenId), 'Token not in sell book');
+        require(tokenSellers[_nftToken][_tokenId] == _msgSender(), 'Only owner can sell token');
+        // find  bid and the index
+        (BidEntry memory bidEntry, uint256 _index) = getBidByTokenIdAndAddress(_nftToken, _quoteToken, _tokenId, _to);
+        require(bidEntry.price != 0, 'Bidder does not exist');
+        require(_price == bidEntry.price, 'Wrong price');
+        uint256 originPrice = _asksMaps[_nftToken][_quoteToken].get(_tokenId);
+        _settleTrade(
+            SettleTrade({
+                nftToken: _nftToken,
+                quoteToken: _quoteToken,
+                buyer: _to,
+                seller: tokenSellers[_nftToken][_tokenId],
+                tokenId: _tokenId,
+                originPrice: originPrice,
+                price: bidEntry.price,
+                isMaker: true
+            })
+        );
+
+        delBidByTokenIdAndIndex(_nftToken, _quoteToken, _tokenId, _index);
+    }
 }
