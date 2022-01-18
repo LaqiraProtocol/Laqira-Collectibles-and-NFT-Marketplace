@@ -44,4 +44,19 @@ contract ExchangeNFTs {
     }
 
     IExchangeNFTConfiguration public config;
+     // nft => tokenId => seller
+    mapping(address => mapping(uint256 => address)) public tokenSellers;
+    // nft => tokenId => quote
+    mapping(address => mapping(uint256 => address)) public tokenSelleOn;
+    // nft => quote => tokenId,price
+    mapping(address => mapping(address => EnumerableMap.UintToUintMap)) private _asksMaps;
+    // nft => quote => seller => tokenIds
+    mapping(address => mapping(address => mapping(address => EnumerableSet.UintSet)))
+        private _userSellingTokens;
+    // nft => quote => tokenId => bid
+    mapping(address => mapping(address => mapping(uint256 => BidEntry[]))) public tokenBids;
+    // nft => quote => buyer => tokenId,bid
+    mapping(address => mapping(address => mapping(address => EnumerableMap.UintToUintMap))) private _userBids;
+    // nft => tokenId => status (0 - can sell and bid, 1 - only bid)
+    mapping(address => mapping(uint256 => uint256)) tokenSelleStatus;
 }
