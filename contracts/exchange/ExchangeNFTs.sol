@@ -463,6 +463,27 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         emit Bid(_nftToken, _to, _tokenId, _quoteToken, _price);
     }
 
+    function getBidByTokenIdAndAddress(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _tokenId,
+        address _address
+    ) internal view virtual returns (BidEntry memory, uint256) {
+        // find the index of the bid
+        BidEntry[] memory bidEntries = tokenBids[_nftToken][_quoteToken][_tokenId];
+        uint256 len = bidEntries.length;
+        uint256 _index;
+        BidEntry memory bidEntry;
+        for (uint256 i = 0; i < len; i++) {
+            if (_address == bidEntries[i].bidder) {
+                _index = i;
+                bidEntry = BidEntry({bidder: bidEntries[i].bidder, price: bidEntries[i].price});
+                break;
+            }
+        }
+        return (bidEntry, _index);
+    }
+
     function delBidByTokenIdAndIndex(
         address _nftToken,
         address _quoteToken,
