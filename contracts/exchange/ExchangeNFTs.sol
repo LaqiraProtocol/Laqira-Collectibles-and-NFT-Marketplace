@@ -14,4 +14,30 @@ contract ExchangeNFTs {
     using SafeMath for uint256;
     using EnumerableMap for EnumerableMap.UintToUintMap;
     using EnumerableSet for EnumerableSet.UintSet;
+
+    struct SettleTrade {
+        address nftToken;
+        address quoteToken;
+        address buyer;
+        address seller;
+        uint256 tokenId;
+        uint256 originPrice;
+        uint256 price;
+        bool isMaker;
+    }
+
+    struct AskEntry {
+        uint256 tokenId;
+        uint256 price;
+    }
+
+    struct BidEntry {
+        address bidder;
+        uint256 price;
+    }
+
+    struct UserBidEntry {
+        uint256 tokenId;
+        uint256 price;
+    }
 }
