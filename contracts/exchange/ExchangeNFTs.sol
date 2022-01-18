@@ -509,4 +509,31 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
 
         delBidByTokenIdAndIndex(_nftToken, _quoteToken, _tokenId, _index);
     }
+
+     function batchCancelBidToken(
+        address[] memory _nftTokens,
+        address[] memory _quoteTokens,
+        uint256[] memory _tokenIds
+    ) external override {
+        require(_nftTokens.length == _quoteTokens.length && _quoteTokens.length == _tokenIds.length, 'length err');
+        for (uint256 i = 0; i < _nftTokens.length; i++) {
+            cancelBidToken(_nftTokens[i], _quoteTokens[i], _tokenIds[i]);
+        }
+    }
+
+    function cancelBidToken(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _tokenId
+    ) public override nonReentrant {
+        config.whenSettings(7, 0);
+        require(_userBids[_nftToken][_quoteToken][_msgSender()].contains(_tokenId), 'Only Bidder can cancel the bid');
+        // find  bid and the index
+        (BidEntry memory bidEntry, uint256 _index) =
+            getBidByTokenIdAndAddress(_nftToken, _quoteToken, _tokenId, _msgSender());
+        require(bidEntry.price != 0, 'Bidder does not exist');
+        ExchangeNFTsHelper.transferToken(_quoteToken, address(this), _msgSender(), bidEntry.price);
+        emit CancelBidToken(_nftToken, _quoteToken, _msgSender(), _tokenId, bidEntry.price);
+        delBidByTokenIdAndIndex(_nftToken, _quoteToken, _tokenId, _index);
+    }
 }
