@@ -176,5 +176,32 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
             setRoyaltiesBurnable(_nftToken, _quoteTokens[i], _royaltiesBurnables[i]);
         }
     }
+
+    function addNft(
+        address _nftToken,
+        bool _enable,
+        address[] memory _quotes,
+        address[] memory _feeAddresses,
+        uint256[] memory _feeValues,
+        bool[] memory _feeBurnAbles,
+        address[] memory _royaltiesProviders,
+        bool[] memory _royaltiesBurnables
+    ) external override onlyOwner {
+        require(
+            _quotes.length == _feeAddresses.length &&
+                _feeAddresses.length == _feeValues.length &&
+                _feeValues.length == _feeBurnAbles.length &&
+                _feeBurnAbles.length == _royaltiesProviders.length &&
+                _royaltiesProviders.length == _royaltiesBurnables.length,
+            'length err'
+        );
+        setNftEnables(_nftToken, _enable);
+        setNftQuoteEnables(_nftToken, _quotes, true);
+        batchTransferFeeAddress(_nftToken, _quotes, _feeAddresses);
+        batchSetFee(_nftToken, _quotes, _feeValues);
+        batchSetFeeBurnAble(_nftToken, _quotes, _feeBurnAbles);
+        batchSetRoyaltiesProviders(_nftToken, _quotes, _royaltiesProviders);
+        batchSetRoyaltiesBurnable(_nftToken, _quotes, _royaltiesBurnables);
+    }
 }
 
