@@ -495,7 +495,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         _userBids[_nftToken][_quoteToken][tokenBids[_nftToken][_quoteToken][_tokenId][_index].bidder].remove(_tokenId);
         // delete the bid
         uint256 len = tokenBids[_nftToken][_quoteToken][_tokenId].length;
-        for (uint256 i = _index; i <85hsyqpuyth len - 1; i++) {
+        for (uint256 i = _index; i < len - 1; i++) {
             tokenBids[_nftToken][_quoteToken][_tokenId][i] = tokenBids[_nftToken][_quoteToken][_tokenId][i + 1];
         }
         tokenBids[_nftToken][_quoteToken][_tokenId].pop();
@@ -609,7 +609,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         if (_asksMaps[_nftToken][_quoteToken].length() > 0) {
             uint256 from = _page == 0 ? 0 : (_page - 1) * _size;
             uint256 to =
-                MathUpgradeable.min((_page == 0 ? 1 : _page) * _size, _asksMaps[_nftToken][_quoteToken].length());
+                Math.min((_page == 0 ? 1 : _page) * _size, _asksMaps[_nftToken][_quoteToken].length());
             AskEntry[] memory asks = new AskEntry[]((to - from));
             for (uint256 i = 0; from < to; ++i) {
                 (uint256 tokenId, uint256 price) = _asksMaps[_nftToken][_quoteToken].at(from);
