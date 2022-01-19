@@ -49,5 +49,19 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
     function setNftEnables(address _nftToken, bool _enable) public override onlyOwner {
         nftEnables[_nftToken] = _enable;
     }
+
+    function setNftQuoteEnables(
+        address _nftToken,
+        address[] memory _quotes,
+        bool _enable
+    ) public override onlyOwner {
+        EnumerableSetUpgradeable.AddressSet storage quotes = nftQuotes[_nftToken];
+        for (uint256 i; i < _quotes.length; i++) {
+            nftQuoteEnables[_nftToken][_quotes[i]] = _enable;
+            if (!quotes.contains(_quotes[i])) {
+                quotes.add(_quotes[i]);
+            }
+        }
+    }
 }
 
