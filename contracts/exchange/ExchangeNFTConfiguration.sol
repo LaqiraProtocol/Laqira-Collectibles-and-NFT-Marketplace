@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
@@ -203,5 +204,35 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
         batchSetRoyaltiesProviders(_nftToken, _quotes, _royaltiesProviders);
         batchSetRoyaltiesBurnable(_nftToken, _quotes, _royaltiesBurnables);
     }
-}
 
+    function nftSettings(address _nftToken, address _quoteToken) external view override returns (NftSettings memory) {
+        return
+            NftSettings({
+                enable: nftEnables[_nftToken],
+                nftQuoteEnable: nftQuoteEnables[_nftToken][_quoteToken],
+                feeAddress: feeAddresses[_nftToken][_quoteToken],
+                feeBurnAble: feeBurnables[_nftToken][_quoteToken],
+                feeValue: feeValues[_nftToken][_quoteToken],
+                royaltiesProvider: royaltiesProviders[_nftToken][_quoteToken],
+                royaltiesBurnable: royaltiesBurnables[_nftToken][_quoteToken]
+            });
+    }
+
+    function checkEnableTrade(address _nftToken, address _quoteToken) external view override {
+        // nft disable
+        require(nftEnables[_nftToken], 'nft disable');
+        // quote disable
+        require(nftQuoteEnables[_nftToken][_quoteToken], 'quote disable');
+    }
+
+    function whenSettings(uint256 key, uint256 value) external view override {
+        require(settings[key] == value, 'settings err');
+    }
+
+    function getNftQuotes(address _nftToken) external view override returns (address[] memory quotes) {
+        quotes = new address[](nftQuotes[_nftToken].length());
+        for (uint256 i = 0; i < nftQuotes[_nftToken].length(); ++i) {
+            quotes[i] = nftQuotes[_nftToken].at(i);
+        }
+    }
+}
