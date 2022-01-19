@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
 
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
@@ -556,5 +558,165 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         ExchangeNFTsHelper.transferToken(_quoteToken, address(this), _msgSender(), bidEntry.price);
         emit CancelBidToken(_nftToken, _quoteToken, _msgSender(), _tokenId, bidEntry.price);
         delBidByTokenIdAndIndex(_nftToken, _quoteToken, _tokenId, _index);
+    }
+
+    function getAskLength(address _nftToken, address _quoteToken) public view returns (uint256) {
+        return _asksMaps[_nftToken][_quoteToken].length();
+    }
+
+    function getAsks(address _nftToken, address _quoteToken) public view returns (AskEntry[] memory) {
+        AskEntry[] memory asks = new AskEntry[](_asksMaps[_nftToken][_quoteToken].length());
+        for (uint256 i = 0; i < _asksMaps[_nftToken][_quoteToken].length(); ++i) {
+            (uint256 tokenId, uint256 price) = _asksMaps[_nftToken][_quoteToken].at(i);
+            asks[i] = AskEntry({tokenId: tokenId, price: price});
+        }
+        return asks;
+    }
+
+    function getAsksByNFT(address _nftToken)
+        external
+        view
+        returns (
+            address[] memory quotes,
+            uint256[] memory lengths,
+            AskEntry[] memory asks
+        )
+    {
+        quotes = getNftQuotes(_nftToken);
+        lengths = new uint256[](quotes.length);
+        uint256 total = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            lengths[i] = getAskLength(_nftToken, quotes[i]);
+            total = total + lengths[i];
+        }
+        asks = new AskEntry[](total);
+        uint256 index = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            AskEntry[] memory tempAsks = getAsks(_nftToken, quotes[i]);
+            for (uint256 j = 0; j < tempAsks.length; ++j) {
+                asks[index] = tempAsks[j];
+                ++index;
+            }
+        }
+    }
+
+    function getAsksByPage(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _page,
+        uint256 _size
+    ) external view returns (AskEntry[] memory) {
+        if (_asksMaps[_nftToken][_quoteToken].length() > 0) {
+            uint256 from = _page == 0 ? 0 : (_page - 1) * _size;
+            uint256 to =
+                MathUpgradeable.min((_page == 0 ? 1 : _page) * _size, _asksMaps[_nftToken][_quoteToken].length());
+            AskEntry[] memory asks = new AskEntry[]((to - from));
+            for (uint256 i = 0; from < to; ++i) {
+                (uint256 tokenId, uint256 price) = _asksMaps[_nftToken][_quoteToken].at(from);
+                asks[i] = AskEntry({tokenId: tokenId, price: price});
+                ++from;
+            }
+            return asks;
+        } else {
+            return new AskEntry[](0);
+        }
+    }
+
+    function getUserAsks(
+        address _nftToken,
+        address _quoteToken,
+        address _user
+    ) public view returns (AskEntry[] memory) {
+        AskEntry[] memory asks = new AskEntry[](_userSellingTokens[_nftToken][_quoteToken][_user].length());
+        for (uint256 i = 0; i < _userSellingTokens[_nftToken][_quoteToken][_user].length(); ++i) {
+            uint256 tokenId = _userSellingTokens[_nftToken][_quoteToken][_user].at(i);
+            uint256 price = _asksMaps[_nftToken][_quoteToken].get(tokenId);
+            asks[i] = AskEntry({tokenId: tokenId, price: price});
+        }
+        return asks;
+    }
+
+    function getUserAsksByNFT(address _nftToken, address _user)
+        external
+        view
+        returns (
+            address[] memory quotes,
+            uint256[] memory lengths,
+            AskEntry[] memory asks
+        )
+    {
+        quotes = getNftQuotes(_nftToken);
+        lengths = new uint256[](quotes.length);
+        uint256 total = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            lengths[i] = _userSellingTokens[_nftToken][quotes[i]][_user].length();
+            total = total + lengths[i];
+        }
+        asks = new AskEntry[](total);
+        uint256 index = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            AskEntry[] memory tempAsks = getUserAsks(_nftToken, quotes[i], _user);
+            for (uint256 j = 0; j < tempAsks.length; ++j) {
+                asks[index] = tempAsks[j];
+                ++index;
+            }
+        }
+    }
+
+    function getBidsLength(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _tokenId
+    ) external view returns (uint256) {
+        return tokenBids[_nftToken][_quoteToken][_tokenId].length;
+    }
+
+    function getBids(
+        address _nftToken,
+        address _quoteToken,
+        uint256 _tokenId
+    ) external view returns (BidEntry[] memory) {
+        return tokenBids[_nftToken][_quoteToken][_tokenId];
+    }
+
+    function getUserBids(
+        address _nftToken,
+        address _quoteToken,
+        address _user
+    ) public view returns (UserBidEntry[] memory) {
+        uint256 length = _userBids[_nftToken][_quoteToken][_user].length();
+        UserBidEntry[] memory bids = new UserBidEntry[](length);
+        for (uint256 i = 0; i < length; i++) {
+            (uint256 tokenId, uint256 price) = _userBids[_nftToken][_quoteToken][_user].at(i);
+            bids[i] = UserBidEntry({tokenId: tokenId, price: price});
+        }
+        return bids;
+    }
+
+    function getUserBidsByNFT(address _nftToken, address _user)
+        external
+        view
+        returns (
+            address[] memory quotes,
+            uint256[] memory lengths,
+            UserBidEntry[] memory bids
+        )
+    {
+        quotes = getNftQuotes(_nftToken);
+        lengths = new uint256[](quotes.length);
+        uint256 total = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            lengths[i] = _userBids[_nftToken][quotes[i]][_user].length();
+            total = total + lengths[i];
+        }
+        bids = new UserBidEntry[](total);
+        uint256 index = 0;
+        for (uint256 i = 0; i < quotes.length; ++i) {
+            UserBidEntry[] memory tempBids = getUserBids(_nftToken, quotes[i], _user);
+            for (uint256 j = 0; j < tempBids.length; ++j) {
+                bids[index] = tempBids[j];
+                ++index;
+            }
+        }
     }
 }
