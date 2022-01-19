@@ -8,7 +8,7 @@ import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import './interfaces/IExchangeNFTConfiguration.sol';
 
 contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
-    using EnumerableSet for EnumerableSetUpgradeable.AddressSet;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /**
       global settings
@@ -56,7 +56,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
         address[] memory _quotes,
         bool _enable
     ) public override onlyOwner {
-        EnumerableSetUpgradeable.AddressSet storage quotes = nftQuotes[_nftToken];
+        EnumerableSet.AddressSet storage quotes = nftQuotes[_nftToken];
         for (uint256 i; i < _quotes.length; i++) {
             nftQuoteEnables[_nftToken][_quotes[i]] = _enable;
             if (!quotes.contains(_quotes[i])) {
