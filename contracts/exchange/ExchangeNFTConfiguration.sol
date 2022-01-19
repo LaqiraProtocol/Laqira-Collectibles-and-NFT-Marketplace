@@ -124,5 +124,31 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
             setFeeBurnAble(_nftToken, _quoteTokens[i], _feeBurnables[i]);
         }
     }
+
+    function setRoyaltiesProvider(
+        address _nftToken,
+        address _quoteToken,
+        address _royaltiesProvider
+    ) public override onlyOwner {
+        emit SetRoyaltiesProvider(
+            _nftToken,
+            _quoteToken,
+            _msgSender(),
+            royaltiesProviders[_nftToken][_quoteToken],
+            _royaltiesProvider
+        );
+        royaltiesProviders[_nftToken][_quoteToken] = _royaltiesProvider;
+    }
+
+    function batchSetRoyaltiesProviders(
+        address _nftToken,
+        address[] memory _quoteTokens,
+        address[] memory _royaltiesProviders
+    ) public override onlyOwner {
+        require(_quoteTokens.length == _royaltiesProviders.length, 'length err');
+        for (uint256 i; i < _quoteTokens.length; ++i) {
+            setRoyaltiesProvider(_nftToken, _quoteTokens[i], _royaltiesProviders[i]);
+        }
+    }
 }
 
