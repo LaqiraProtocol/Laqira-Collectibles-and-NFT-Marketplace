@@ -45,5 +45,9 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
             settings[keys[i]] = values[i];
         }
     }
+
+    function setNftEnables(address _nftToken, bool _enable) public override onlyOwner {
+        nftEnables[_nftToken] = _enable;
+    }
 }
 
