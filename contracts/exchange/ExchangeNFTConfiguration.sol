@@ -63,5 +63,26 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
             }
         }
     }
+
+    function transferFeeAddress(
+        address _nftToken,
+        address _quoteToken,
+        address _feeAddress
+    ) public override {
+        require(_msgSender() == feeAddresses[_nftToken][_quoteToken] || owner() == _msgSender(), 'forbidden');
+        emit FeeAddressTransferred(_nftToken, _quoteToken, feeAddresses[_nftToken][_quoteToken], _feeAddress);
+        feeAddresses[_nftToken][_quoteToken] = _feeAddress;
+    }
+
+    function batchTransferFeeAddress(
+        address _nftToken,
+        address[] memory _quoteTokens,
+        address[] memory _feeAddresses
+    ) public override {
+        require(_quoteTokens.length == _feeAddresses.length, 'length err');
+        for (uint256 i; i < _quoteTokens.length; ++i) {
+            transferFeeAddress(_nftToken, _quoteTokens[i], _feeAddresses[i]);
+        }
+    }
 }
 
