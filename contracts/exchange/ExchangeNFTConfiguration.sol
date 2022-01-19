@@ -37,5 +37,13 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
     mapping(address => mapping(address => bool)) public override royaltiesBurnables;
     // nft => quotes
     mapping(address => EnumerableSet.AddressSet) private nftQuotes;
+
+    function setSettings(uint256[] memory keys, uint256[] memory values) external override onlyOwner {
+        require(keys.length == values.length, 'length err');
+        for (uint256 i; i < keys.length; ++i) {
+            emit UpdateSettings(keys[i], settings[keys[i]], values[i]);
+            settings[keys[i]] = values[i];
+        }
+    }
 }
 
