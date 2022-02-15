@@ -24,6 +24,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     }
 
     uint256[] private pendingRequests;
+    uint256[] private rejectedRequests;
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
         
     }
@@ -61,6 +62,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         _rejectedIds[_tokenId].owner = _pendingIds[_tokenId].owner;
         _rejectedIds[_tokenId].tokenURI = _pendingIds[_tokenId].tokenURI;
         _userRejectedIds[_pendingIds[_tokenId].owner].push(_tokenId);
+        rejectedRequests.push(_tokenId);
         delUintFromArray(_tokenId, pendingRequests);
         delUintFromArray(_tokenId, _userPendingIds[_pendingIds[_tokenId].owner]);
         delete _pendingIds[_tokenId];
