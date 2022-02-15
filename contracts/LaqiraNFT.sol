@@ -52,18 +52,18 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
 
         _setTokenURI(_tokenId, _pendingIds[_tokenId].tokenURI);
 
+        delUintFromArray(_tokenId, pendingRequests);
+        delUintFromArray(_tokenId, _userPendingIds[_pendingIds[_tokenId].owner]);
         delete _pendingIds[_tokenId];
-        pendingRequests = delUintFromArray(_tokenId, pendingRequests);
-        _userPendingIds[_pendingIds[_tokenId].owner] = delUintFromArray(_tokenId, _userPendingIds[_pendingIds[_tokenId].owner]);
     }
 
     function rejectNFT(uint256 _tokenId) public onlyOwner {
         _rejectedIds[_tokenId].owner = _pendingIds[_tokenId].owner;
         _rejectedIds[_tokenId].tokenURI = _pendingIds[_tokenId].tokenURI;
         _userRejectedIds[_pendingIds[_tokenId].owner].push(_tokenId);
+        delUintFromArray(_tokenId, pendingRequests);
+        delUintFromArray(_tokenId, _userPendingIds[_pendingIds[_tokenId].owner]);
         delete _pendingIds[_tokenId];
-        pendingRequests = delUintFromArray(_tokenId, pendingRequests);
-        _userPendingIds[_pendingIds[_tokenId].owner] = delUintFromArray(_tokenId, _userPendingIds[_pendingIds[_tokenId].owner]);
     }
 
     function setMintingFeeAmount(uint256 _amount) public onlyOwner {
