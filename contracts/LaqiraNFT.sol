@@ -70,6 +70,10 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         mintingFee = _amount;
     }
 
+    function getPendingRequests() public view returns (uint256[] memory) {
+        return pendingRequests;
+    }
+
     function _baseURI() internal view override returns (string memory) {
         return "ipfs://";
     }
