@@ -86,7 +86,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     function delUintFromArray(
         uint256 _element,
         uint256[] storage array
-    ) internal returns (uint256[] memory) {
+    ) internal {
         // delete the element
         uint256 len = array.length;
         uint256 j = 0;
@@ -100,6 +100,5 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
             array[j] = array[j + 1];
         }
         array.pop();
-        return array;
     }
 }
