@@ -7,6 +7,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
+interface IBEP20 {
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+
+    function transfer(address recipient, uint256 amount) external returns (bool);
+}
+
 contract LaqiraNFT is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -82,6 +94,11 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
 
     function removeOperator(address _operator) public onlyOwner {
         operators[_operator] = false;
+    }
+
+    function transferAnyBEP20(address _tokenAddress, address _to, uint256 _amount) public onlyOwner returns (bool) {
+        IBEP20(_tokenAddress).transfer(_to, _amount);
+        return true;
     }
 
     function isOperator(address _operator) public view returns (bool) {
