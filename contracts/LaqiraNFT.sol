@@ -57,6 +57,21 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         _pendingIds[newTokenId].tokenURI = _tokenURI;
         _userPendingIds[_msgSender()].push(newTokenId);
     }
+    /**
+        This function will be used only by owner to revive NFT ids which have been rejected by operator
+        or burnt by owner by mistake. 
+     */
+    function mintTo(uint256 _tokenId) public onlyOwner {
+        require(_rejectedIds[_tokenId].owner != address(0), 'NFT should have prior owner');
+        pendingRequests.push(_tokenId);
+        _pendingIds[_tokenId].owner = _rejectedIds[_tokenId].owner;
+        _pendingIds[_tokenId].tokenURI = _rejectedIds[_tokenId].tokenURI;
+        _userPendingIds[_rejectedIds[_tokenId].owner].push(_tokenId);
+
+        delUintFromArray(_tokenId, rejectedRequests);
+        delUintFromArray(_tokenId, _userRejectedIds[_rejectedIds[_tokenId].owner]);
+        delete _rejectedIds[_tokenId];
+    }
 
     function burn(uint256 tokenId) public onlyOwner {
        _rejectedIds[tokenId].owner = ERC721.ownerOf(tokenId);
