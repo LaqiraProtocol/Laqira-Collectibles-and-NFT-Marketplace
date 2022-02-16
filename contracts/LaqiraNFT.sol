@@ -59,6 +59,10 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     }
 
     function burn(uint256 tokenId) public onlyOwner {
+       _rejectedIds[tokenId].owner = ERC721.ownerOf(tokenId);
+       _rejectedIds[tokenId].tokenURI = tokenURI(tokenId);
+       _userRejectedIds[ERC721.ownerOf(tokenId)].push(tokenId);
+       rejectedRequests.push(tokenId);
        _burn(tokenId);
     }
 
