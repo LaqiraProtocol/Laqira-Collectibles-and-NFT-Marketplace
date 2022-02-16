@@ -23,6 +23,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     uint256 private mintingFee;
+    address private feeAddress;
 
     mapping(uint256 => string) private _tokenURIs;
     mapping(address => uint256[]) private _userPendingIds;
@@ -39,14 +40,17 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
 
     uint256[] private pendingRequests;
     uint256[] private rejectedRequests;
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
-        
+    constructor(string memory _name, string memory _symbol, address feeAddress_) ERC721(_name, _symbol) {
+        feeAddress = feeAddress_;
     }
 
     function mint(string memory _tokenURI) public payable {
         uint256 transferredAmount = msg.value;
         
         require(transferredAmount >= mintingFee, 'Insufficient paid amount');
+
+        (bool success, ) = feeAddress.call{value: transferredAmount}(new bytes(0));
+        require(success, 'Transfer failed');
 
         _tokenIds.increment();
 
@@ -120,9 +124,17 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         return true;
     }
 
+    function setFeeAddress(address _newAddress) public onlyOwner {
+        feeAddress = _newAddress;
+    }
+
     function transfer(address _to, uint256 _tokenId) public returns (bool) {
         _transfer(_msgSender(), _to, _tokenId);
         return true;
+    }
+
+    function getFeeAddress() public view returns (address) {
+        return feeAddress;
     }
 
     function isOperator(address _operator) public view returns (bool) {
