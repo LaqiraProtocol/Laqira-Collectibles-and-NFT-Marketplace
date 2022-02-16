@@ -112,7 +112,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         // delete the element
         uint256 len = array.length;
         uint256 j = 0;
-        for (uint256 i = 0; i < len - 1; i++) {
+        for (uint256 i = 0; i <= len - 1; i++) {
             if (array[i] == _element) {
                 j = i;
                 break;
