@@ -96,6 +96,10 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         return _rejectedIds[_id];
     }
 
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+       return _tokenURIs[tokenId];
+    }
+
     function _baseURI() internal view override returns (string memory) {
         return "ipfs://";
     }
