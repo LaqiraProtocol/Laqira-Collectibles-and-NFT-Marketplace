@@ -18,6 +18,8 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     mapping(address => uint256[]) private _userRejectedIds;
     mapping(uint256 => PendingIds) private _rejectedIds;
 
+    mapping(address => bool) private operators;
+
     struct PendingIds {
         address owner;
         string tokenURI;
@@ -48,7 +50,8 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
        _burn(tokenId);
     }
 
-    function confirmNFT(uint256 _tokenId) public onlyOwner {
+    function confirmNFT(uint256 _tokenId) public {
+        require(operators[_msgSender()] || _msgSender() == owner(), 'Permission denied!');
         _mint(_pendingIds[_tokenId].owner, _tokenId);
 
         _setTokenURI(_tokenId, _pendingIds[_tokenId].tokenURI);
@@ -58,7 +61,8 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         delete _pendingIds[_tokenId];
     }
 
-    function rejectNFT(uint256 _tokenId) public onlyOwner {
+    function rejectNFT(uint256 _tokenId) public {
+        require(operators[_msgSender()] || _msgSender() == owner(), 'Permission denied!');
         _rejectedIds[_tokenId].owner = _pendingIds[_tokenId].owner;
         _rejectedIds[_tokenId].tokenURI = _pendingIds[_tokenId].tokenURI;
         _userRejectedIds[_pendingIds[_tokenId].owner].push(_tokenId);
@@ -70,6 +74,18 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
 
     function setMintingFeeAmount(uint256 _amount) public onlyOwner {
         mintingFee = _amount;
+    }
+
+    function setAsOperator(address _operator) public onlyOwner {
+        operators[_operator] = true;
+    }
+
+    function removeOperator(address _operator) public onlyOwner {
+        operators[_operator] = false;
+    }
+
+    function isOperator(address _operator) public view returns (bool) {
+        return operators[_operator];
     }
 
     function getPendingRequests() public view returns (uint256[] memory) {
