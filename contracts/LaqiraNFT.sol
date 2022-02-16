@@ -120,6 +120,11 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         return true;
     }
 
+    function transfer(address _to, uint256 _tokenId) public returns (bool) {
+        _transfer(_msgSender(), _to, _tokenId);
+        return true;
+    }
+
     function isOperator(address _operator) public view returns (bool) {
         return operators[_operator];
     }
