@@ -124,6 +124,11 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         return true;
     }
 
+    function adminWithdrawal(uint256 _amount) public onlyOwner {
+        address payable _owner = payable(owner());
+        _owner.transfer(_amount);
+    }
+
     function setFeeAddress(address _newAddress) public onlyOwner {
         feeAddress = _newAddress;
     }
