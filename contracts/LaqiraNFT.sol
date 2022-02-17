@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
+import "./exchange/royalties/IRoyaltiesProvider.sol";
+
 interface IBEP20 {
     /**
      * @dev Moves `amount` tokens from the caller's account to `recipient`.
@@ -24,6 +26,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     Counters.Counter private _tokenIds;
     uint256 private mintingFee;
     address private feeAddress;
+    address private royalitiesProviderAddress;
 
     mapping(uint256 => string) private _tokenURIs;
     mapping(address => uint256[]) private _userPendingIds;
@@ -44,7 +47,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         feeAddress = feeAddress_;
     }
 
-    function mint(string memory _tokenURI) public payable {
+    function mint(string memory _tokenURI, uint96 _value) public payable {
         uint256 transferredAmount = msg.value;
         
         require(transferredAmount >= mintingFee, 'Insufficient paid amount');
@@ -60,6 +63,8 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         _pendingIds[newTokenId].owner = _msgSender();
         _pendingIds[newTokenId].tokenURI = _tokenURI;
         _userPendingIds[_msgSender()].push(newTokenId);
+        
+        IRoyaltiesProvider(royalitiesProviderAddress).setRoyalties(address(this), newTokenId, LibPart.Part({account: payable(_msgSender()), value:_value}));
     }
     /**
         This function will be used only by owner to revive NFT ids which have been rejected by operator
@@ -136,6 +141,14 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     function transfer(address _to, uint256 _tokenId) public returns (bool) {
         _transfer(_msgSender(), _to, _tokenId);
         return true;
+    }
+
+    function setRoyalitiesProviderAddress(address _royalitiesProviderAddress) public onlyOwner {
+        royalitiesProviderAddress = _royalitiesProviderAddress;
+    }
+
+    function getRoyalitiesProviderAddress() public view returns (address) {
+        return royalitiesProviderAddress;
     }
 
     function getFeeAddress() public view returns (address) {
