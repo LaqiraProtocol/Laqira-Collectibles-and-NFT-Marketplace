@@ -13,7 +13,7 @@ contract RoyalitiesProvider is IRoyaltiesProvider, Ownable {
         return royalties[token][tokenId];
     }
 
-    function setRoyalties(address token, uint256 tokenId, LibPart.Part[] memory _royalities) external onlyLaqiraNFT returns (bool) {
+    function setRoyalties(address token, uint256 tokenId, LibPart.Part[] memory _royalities) external override onlyLaqiraNFT returns (bool) {
         uint256 _len = _royalities.length;
         for (uint256 i = 0; i < _len; i++) {
             royalties[token][tokenId].push(_royalities[i]);
