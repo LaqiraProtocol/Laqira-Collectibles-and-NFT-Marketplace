@@ -47,7 +47,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         feeAddress = feeAddress_;
     }
 
-    function mint(string memory _tokenURI, uint96 _value) public payable {
+    function mint(string memory _tokenURI, address[] memory royaltyOwners, uint96[] memory values) public payable {
         uint256 transferredAmount = msg.value;
         
         require(transferredAmount >= mintingFee, 'Insufficient paid amount');
@@ -64,7 +64,7 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
         _pendingIds[newTokenId].tokenURI = _tokenURI;
         _userPendingIds[_msgSender()].push(newTokenId);
         
-        IRoyaltiesProvider(royalitiesProviderAddress).setRoyalties(address(this), newTokenId, LibPart.Part({account: payable(_msgSender()), value:_value}));
+        IRoyaltiesProvider(royalitiesProviderAddress).setRoyalties(address(this), newTokenId, royaltyOwners, values);
     }
     /**
         This function will be used only by owner to revive NFT ids which have been rejected by operator
