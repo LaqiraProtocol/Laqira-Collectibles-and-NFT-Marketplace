@@ -5,11 +5,11 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './royalties/IRoyaltiesProvider.sol';
 
-contract RoyalitiesProvider is IRoyaltiesProvider, Ownable {
-    address private LaqiraNFTAddress;
+contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
+    mapping(address => bool) private allowedNFTs;
     mapping(address => mapping(uint256 => LibPart.Part[])) private royalties;
 
-    function getRoyalties(address token, uint256 tokenId) external override returns (LibPart.Part[] memory) {
+    function getRoyalties(address token, uint256 tokenId) external view override returns (LibPart.Part[] memory) {
         return royalties[token][tokenId];
     }
 
@@ -18,16 +18,16 @@ contract RoyalitiesProvider is IRoyaltiesProvider, Ownable {
         return true;
     }
 
-    function setLaqiraNFTAddress(address _NFTAddress) public onlyOwner {
-        LaqiraNFTAddress = _NFTAddress;
+    function setAllowedNFTs(address _NFTAddress, bool permission) public onlyOwner {
+        allowedNFTs[_NFTAddress] = permission;
     }
 
-    function getLaqiraNFTAddress() public view returns (address) {
-        return LaqiraNFTAddress;
+    function isAllowedNFTs(address _NFTAddress) public view returns (bool) {
+        return allowedNFTs[_NFTAddress];
     }
 
     modifier onlyLaqiraNFT {
-        require(msg.sender == LaqiraNFTAddress, 'Only laqira NFT contract');
+        require(isAllowedNFTs(_msgSender()), 'Only valid NFTs');
         _;
     }
 }
