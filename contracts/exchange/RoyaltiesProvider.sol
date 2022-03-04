@@ -14,7 +14,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         return royalties[token][tokenId];
     }
 
-    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyLaqiraNFT returns (bool) {
+    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFTs returns (bool) {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
@@ -43,7 +43,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         return totalRoyalties;
     }
 
-    modifier onlyLaqiraNFT {
+    modifier onlyAllowedNFTs {
         require(isAllowedNFTs(_msgSender()), 'Only valid NFTs');
         _;
     }
