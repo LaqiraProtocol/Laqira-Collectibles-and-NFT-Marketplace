@@ -98,7 +98,8 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
-                _quoteTokens.length == _prices.length,
+                _quoteTokens.length == _prices.length &&
+                _prices.length == _selleStatus.length,
             'length err'
         );
         for (uint256 i = 0; i < _nftTokens.length; i++) {
