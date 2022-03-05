@@ -20,6 +20,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
+            require(royaltyOwners[i] != address(0), 'Zero address cannot be royaltyOwner');
             _totalRoyalties += values[i];
         }
         require(_totalRoyalties <= totalRoyalties, 'Invalid total royalties');
