@@ -238,7 +238,6 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         if (nftSettings.royaltiesProvider != address(0)) {
             LibPart.Part[] memory fees =
                 IRoyaltiesProvider(nftSettings.royaltiesProvider).getRoyalties(
-                    settleTrade.nftToken,
                     settleTrade.tokenId
                 );
             for (uint256 i = 0; i < fees.length; i++) {

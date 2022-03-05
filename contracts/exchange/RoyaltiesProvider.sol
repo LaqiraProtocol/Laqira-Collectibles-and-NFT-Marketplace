@@ -9,11 +9,11 @@ import './royalties/IRoyaltiesProvider.sol';
 
 contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
     address private allowedNFT;
-    mapping(address => mapping(uint256 => LibPart.Part[])) private royalties;
+    mapping(uint256 => LibPart.Part[]) private royalties;
     uint96 private totalRoyalties;
 
-    function getRoyalties(address token, uint256 tokenId) external view override returns (LibPart.Part[] memory) {
-        return royalties[token][tokenId];
+    function getRoyalties(uint256 tokenId) external view override returns (LibPart.Part[] memory) {
+        return royalties[tokenId];
     }
 
     function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFT returns (bool) {
