@@ -7,5 +7,5 @@ import './LibPart.sol';
 
 interface IRoyaltiesProvider {
     function getRoyalties(uint256 tokenId) external view returns (LibPart.Part[] memory);
-    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external returns (bool);
+    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external returns (bool);
 }

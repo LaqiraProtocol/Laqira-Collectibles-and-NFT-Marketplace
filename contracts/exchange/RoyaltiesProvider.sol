@@ -16,7 +16,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         return royalties[tokenId];
     }
 
-    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFT returns (bool) {
+    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFT returns (bool) {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
@@ -24,7 +24,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         }
         require(_totalRoyalties <= totalRoyalties, 'Invalid total royalties');
         for (uint256 i = 0; i < values.length; i++) {
-            royalties[token][tokenId].push(LibPart.Part({account: payable(royaltyOwners[i]), value: values[i]}));
+            royalties[tokenId].push(LibPart.Part({account: payable(royaltyOwners[i]), value: values[i]}));
         }
         return true;
     }
@@ -46,7 +46,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
     }
 
     modifier onlyAllowedNFT {
-        require(msg.sender == allowedNFT, 'Only allowedNFT');
+        require(msg.sender == getAllowedNFT(), 'Only allowedNFT');
         _;
     }
 }
