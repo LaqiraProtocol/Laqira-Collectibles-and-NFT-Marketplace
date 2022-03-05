@@ -2,15 +2,19 @@
 
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './royalties/IRoyaltiesProvider.sol';
 
 // This smart contract is deployed as royaltiesProvider of "Laqira" collectibles.
 
-contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
+contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
     address private allowedNFT;
     mapping(uint256 => LibPart.Part[]) private royalties;
     uint96 private totalRoyalties;
+
+    function initialize() public initializer {
+        __Ownable_init();
+    }
 
     function getRoyalties(uint256 tokenId) external view override returns (LibPart.Part[] memory) {
         return royalties[tokenId];
