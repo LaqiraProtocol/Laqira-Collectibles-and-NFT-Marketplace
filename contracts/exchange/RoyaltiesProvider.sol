@@ -5,8 +5,10 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './royalties/IRoyaltiesProvider.sol';
 
+// This smart contract is deployed as royaltiesProvider of "Laqira" collectibles.
+
 contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
-    mapping(address => bool) private allowedNFTs;
+    address private allowedNFT;
     mapping(address => mapping(uint256 => LibPart.Part[])) private royalties;
     uint96 private totalRoyalties;
 
@@ -14,7 +16,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         return royalties[token][tokenId];
     }
 
-    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFTs returns (bool) {
+    function setRoyalties(address token, uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFT returns (bool) {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
@@ -31,20 +33,20 @@ contract RoyaltiesProvider is IRoyaltiesProvider, Ownable {
         totalRoyalties = _value;
     }
 
-    function setAllowedNFTs(address _NFTAddress, bool permission) public onlyOwner {
-        allowedNFTs[_NFTAddress] = permission;
+    function setAllowedNFT(address _NFTAddress) public onlyOwner {
+        allowedNFT = _NFTAddress;
     }
 
-    function isAllowedNFTs(address _NFTAddress) public view returns (bool) {
-        return allowedNFTs[_NFTAddress];
+    function getAllowedNFT() public view returns (address) {
+        return allowedNFT;
     }
 
     function getTotalRoyalties() public view returns (uint96) {
         return totalRoyalties;
     }
 
-    modifier onlyAllowedNFTs {
-        require(isAllowedNFTs(_msgSender()), 'Only valid NFTs');
+    modifier onlyAllowedNFT {
+        require(msg.sender == allowedNFT, 'Only allowedNFT');
         _;
     }
 }
