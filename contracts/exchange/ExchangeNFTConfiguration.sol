@@ -44,7 +44,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         __Ownable_init_unchained();
     }
 
-    function setSettings(uint256[] memory keys, uint256[] memory values) external override onlyOwner {
+    function setSettings(uint256[] memory keys, uint256[] memory values) external virtual override onlyOwner {
         require(keys.length == values.length, 'length err');
         for (uint256 i; i < keys.length; ++i) {
             emit UpdateSettings(keys[i], settings[keys[i]], values[i]);
@@ -52,7 +52,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         }
     }
 
-    function setNftEnables(address _nftToken, bool _enable) public override onlyOwner {
+    function setNftEnables(address _nftToken, bool _enable) public virtual override onlyOwner {
         nftEnables[_nftToken] = _enable;
     }
 
@@ -60,7 +60,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quotes,
         bool _enable
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         EnumerableSetUpgradeable.AddressSet storage quotes = nftQuotes[_nftToken];
         for (uint256 i; i < _quotes.length; i++) {
             nftQuoteEnables[_nftToken][_quotes[i]] = _enable;
@@ -74,7 +74,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address _quoteToken,
         address _feeAddress
-    ) public override {
+    ) public virtual override {
         require(_msgSender() == feeAddresses[_nftToken][_quoteToken] || owner() == _msgSender(), 'forbidden');
         emit FeeAddressTransferred(_nftToken, _quoteToken, feeAddresses[_nftToken][_quoteToken], _feeAddress);
         feeAddresses[_nftToken][_quoteToken] = _feeAddress;
@@ -84,7 +84,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quoteTokens,
         address[] memory _feeAddresses
-    ) public override {
+    ) public virtual override {
         require(_quoteTokens.length == _feeAddresses.length, 'length err');
         for (uint256 i; i < _quoteTokens.length; ++i) {
             transferFeeAddress(_nftToken, _quoteTokens[i], _feeAddresses[i]);
@@ -95,7 +95,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address _quoteToken,
         uint256 _feeValue
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         emit SetFee(_nftToken, _quoteToken, _msgSender(), feeValues[_nftToken][_quoteToken], _feeValue);
         feeValues[_nftToken][_quoteToken] = _feeValue;
     }
@@ -104,7 +104,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quoteTokens,
         uint256[] memory _feeValues
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         require(_quoteTokens.length == _feeValues.length, 'length err');
         for (uint256 i; i < _quoteTokens.length; ++i) {
             setFee(_nftToken, _quoteTokens[i], _feeValues[i]);
@@ -115,7 +115,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address _quoteToken,
         bool _feeBurnable
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         emit SetFeeBurnAble(_nftToken, _quoteToken, _msgSender(), feeBurnables[_nftToken][_quoteToken], _feeBurnable);
         feeBurnables[_nftToken][_quoteToken] = _feeBurnable;
     }
@@ -124,7 +124,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quoteTokens,
         bool[] memory _feeBurnables
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         require(_quoteTokens.length == _feeBurnables.length, 'length err');
         for (uint256 i; i < _quoteTokens.length; ++i) {
             setFeeBurnAble(_nftToken, _quoteTokens[i], _feeBurnables[i]);
@@ -135,7 +135,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address _quoteToken,
         address _royaltiesProvider
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         emit SetRoyaltiesProvider(
             _nftToken,
             _quoteToken,
@@ -150,7 +150,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quoteTokens,
         address[] memory _royaltiesProviders
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         require(_quoteTokens.length == _royaltiesProviders.length, 'length err');
         for (uint256 i; i < _quoteTokens.length; ++i) {
             setRoyaltiesProvider(_nftToken, _quoteTokens[i], _royaltiesProviders[i]);
@@ -161,7 +161,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address _quoteToken,
         bool _royaltiesBurnable
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         emit SetRoyaltiesBurnable(
             _nftToken,
             _quoteToken,
@@ -176,7 +176,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _nftToken,
         address[] memory _quoteTokens,
         bool[] memory _royaltiesBurnables
-    ) public override onlyOwner {
+    ) public virtual override onlyOwner {
         require(_quoteTokens.length == _royaltiesBurnables.length, 'length err');
         for (uint256 i; i < _quoteTokens.length; ++i) {
             setRoyaltiesBurnable(_nftToken, _quoteTokens[i], _royaltiesBurnables[i]);
@@ -192,7 +192,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         bool[] memory _feeBurnAbles,
         address[] memory _royaltiesProviders,
         bool[] memory _royaltiesBurnables
-    ) external override onlyOwner {
+    ) external virtual override onlyOwner {
         require(
             _quotes.length == _feeAddresses.length &&
                 _feeAddresses.length == _feeValues.length &&
@@ -210,7 +210,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         batchSetRoyaltiesBurnable(_nftToken, _quotes, _royaltiesBurnables);
     }
 
-    function nftSettings(address _nftToken, address _quoteToken) external view override returns (NftSettings memory) {
+    function nftSettings(address _nftToken, address _quoteToken) external virtual view override returns (NftSettings memory) {
         return
             NftSettings({
                 enable: nftEnables[_nftToken],
@@ -223,18 +223,18 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
             });
     }
 
-    function checkEnableTrade(address _nftToken, address _quoteToken) external view override {
+    function checkEnableTrade(address _nftToken, address _quoteToken) external virtual view override {
         // nft disable
         require(nftEnables[_nftToken], 'nft disable');
         // quote disable
         require(nftQuoteEnables[_nftToken][_quoteToken], 'quote disable');
     }
 
-    function whenSettings(uint256 key, uint256 value) external view override {
+    function whenSettings(uint256 key, uint256 value) external virtual view override {
         require(settings[key] == value, 'settings err');
     }
 
-    function getNftQuotes(address _nftToken) external view override returns (address[] memory quotes) {
+    function getNftQuotes(address _nftToken) external virtual view override returns (address[] memory quotes) {
         quotes = new address[](nftQuotes[_nftToken].length());
         for (uint256 i = 0; i < nftQuotes[_nftToken].length(); ++i) {
             quotes[i] = nftQuotes[_nftToken].at(i);
