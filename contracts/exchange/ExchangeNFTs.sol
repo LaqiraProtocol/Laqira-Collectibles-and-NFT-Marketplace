@@ -71,12 +71,12 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         config = IExchangeNFTConfiguration(_config);
     }
 
-    function setConfig(address _config) public onlyOwner {
+    function setConfig(address _config) public virtual onlyOwner {
         require(address(config) != _config, 'forbidden');
         config = IExchangeNFTConfiguration(_config);
     }
 
-    function getNftQuotes(address _nftToken) public view override returns (address[] memory) {
+    function getNftQuotes(address _nftToken) public virtual view override returns (address[] memory) {
         return config.getNftQuotes(_nftToken);
     }
 
@@ -86,7 +86,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address[] memory _quoteTokens,
         uint256[] memory _prices,
         uint256[] memory _selleStatus
-    ) external override {
+    ) external virtual override {
         batchReadyToSellTokenTo(_nftTokens, _tokenIds, _quoteTokens, _prices, _selleStatus, _msgSender());
     }
 
@@ -97,7 +97,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256[] memory _prices,
         uint256[] memory _selleStatus,
         address _to
-    ) public override {
+    ) public virtual override {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
@@ -116,7 +116,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _quoteToken,
         uint256 _price,
         uint256 _selleStatus
-    ) external override {
+    ) external virtual override {
         readyToSellTokenTo(_nftToken, _tokenId, _quoteToken, _price, _msgSender(), _selleStatus);
     }
 
@@ -125,7 +125,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _tokenId,
         address _quoteToken,
         uint256 _price
-    ) external override {
+    ) external virtual override {
         readyToSellTokenTo(_nftToken, _tokenId, _quoteToken, _price, _msgSender(), 0);
     }
 
@@ -136,7 +136,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _price,
         address _to,
         uint256 _selleStatus
-    ) public override nonReentrant {
+    ) public virtual override nonReentrant {
         config.whenSettings(0, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(_msgSender() == IERC721Upgradeable(_nftToken).ownerOf(_tokenId), 'Only Token Owner can sell token');
@@ -155,7 +155,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256[] memory _tokenIds,
         address[] memory _quoteTokens,
         uint256[] memory _prices
-    ) external override {
+    ) external virtual override {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
@@ -172,7 +172,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _tokenId,
         address _quoteToken,
         uint256 _price
-    ) public override nonReentrant {
+    ) public virtual override nonReentrant {
         config.whenSettings(1, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(
@@ -189,7 +189,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256[] memory _tokenIds,
         address[] memory _quoteTokens,
         uint256[] memory _prices
-    ) external override {
+    ) external virtual override {
         batchBuyTokenTo(_nftTokens, _tokenIds, _quoteTokens, _prices, _msgSender());
     }
 
@@ -199,7 +199,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address[] memory _quoteTokens,
         uint256[] memory _prices,
         address _to
-    ) public override {
+    ) public virtual override {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
@@ -216,11 +216,11 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _tokenId,
         address _quoteToken,
         uint256 _price
-    ) external payable override {
+    ) external virtual payable override {
         buyTokenTo(_nftToken, _tokenId, _quoteToken, _price, _msgSender());
     }
 
-    function _settleTrade(SettleTrade memory settleTrade) internal {
+    function _settleTrade(SettleTrade memory settleTrade) internal virtual {
         IExchangeNFTConfiguration.NftSettings memory nftSettings =
             config.nftSettings(settleTrade.nftToken, settleTrade.quoteToken);
         uint256 feeAmount = settleTrade.price.mul(nftSettings.feeValue).div(10000);
@@ -299,7 +299,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _quoteToken,
         uint256 _price,
         address _to
-    ) public payable override nonReentrant {
+    ) public virtual payable override nonReentrant {
         config.whenSettings(2, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(tokenSelleOn[_nftToken][_tokenId] == _quoteToken, 'quote token err');
@@ -327,14 +327,14 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         );
     }
 
-    function batchCancelSellToken(address[] memory _nftTokens, uint256[] memory _tokenIds) external override {
+    function batchCancelSellToken(address[] memory _nftTokens, uint256[] memory _tokenIds) external virtual override {
         require(_nftTokens.length == _tokenIds.length);
         for (uint256 i = 0; i < _nftTokens.length; i++) {
             cancelSellToken(_nftTokens[i], _tokenIds[i]);
         }
     }
 
-    function cancelSellToken(address _nftToken, uint256 _tokenId) public override nonReentrant {
+    function cancelSellToken(address _nftToken, uint256 _tokenId) public virtual override nonReentrant {
         config.whenSettings(3, 0);
         require(tokenSellers[_nftToken][_tokenId] == _msgSender(), 'Only Seller can cancel sell token');
         IERC721Upgradeable(_nftToken).safeTransferFrom(address(this), _msgSender(), _tokenId);
@@ -358,7 +358,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256[] memory _tokenIds,
         address[] memory _quoteTokens,
         uint256[] memory _prices
-    ) external override {
+    ) external virtual override {
         batchBidTokenTo(_nftTokens, _tokenIds, _quoteTokens, _prices, _msgSender());
     }
 
@@ -368,7 +368,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address[] memory _quoteTokens,
         uint256[] memory _prices,
         address _to
-    ) public override {
+    ) public virtual override {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
@@ -385,7 +385,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _tokenId,
         address _quoteToken,
         uint256 _price
-    ) external payable override {
+    ) external virtual payable override {
         bidTokenTo(_nftToken, _tokenId, _quoteToken, _price, _msgSender());
     }
 
@@ -395,7 +395,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _quoteToken,
         uint256 _price,
         address _to
-    ) public payable override nonReentrant {
+    ) public virtual payable override nonReentrant {
         config.whenSettings(4, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(_price != 0, 'Price must be granter than zero');
@@ -420,7 +420,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256[] memory _tokenIds,
         address[] memory _quoteTokens,
         uint256[] memory _prices
-    ) external override {
+    ) external virtual override {
         require(
             _nftTokens.length == _tokenIds.length &&
                 _tokenIds.length == _quoteTokens.length &&
@@ -437,7 +437,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         uint256 _tokenId,
         address _quoteToken,
         uint256 _price
-    ) public payable override nonReentrant {
+    ) public virtual payable override nonReentrant {
         config.whenSettings(5, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(
@@ -510,7 +510,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _quoteToken,
         uint256 _price,
         address _to
-    ) public override nonReentrant {
+    ) public virtual override nonReentrant {
         config.whenSettings(6, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(_asksMaps[_nftToken][_quoteToken].contains(_tokenId), 'Token not in sell book');
@@ -540,7 +540,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address[] memory _nftTokens,
         address[] memory _quoteTokens,
         uint256[] memory _tokenIds
-    ) external override {
+    ) external virtual override {
         require(_nftTokens.length == _quoteTokens.length && _quoteTokens.length == _tokenIds.length, 'length err');
         for (uint256 i = 0; i < _nftTokens.length; i++) {
             cancelBidToken(_nftTokens[i], _quoteTokens[i], _tokenIds[i]);
@@ -551,7 +551,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _nftToken,
         address _quoteToken,
         uint256 _tokenId
-    ) public override nonReentrant {
+    ) public virtual override nonReentrant {
         config.whenSettings(7, 0);
         require(_userBids[_nftToken][_quoteToken][_msgSender()].contains(_tokenId), 'Only Bidder can cancel the bid');
         // find  bid and the index
@@ -563,11 +563,11 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         delBidByTokenIdAndIndex(_nftToken, _quoteToken, _tokenId, _index);
     }
 
-    function getAskLength(address _nftToken, address _quoteToken) public view returns (uint256) {
+    function getAskLength(address _nftToken, address _quoteToken) public virtual view returns (uint256) {
         return _asksMaps[_nftToken][_quoteToken].length();
     }
 
-    function getAsks(address _nftToken, address _quoteToken) public view returns (AskEntry[] memory) {
+    function getAsks(address _nftToken, address _quoteToken) public virtual view returns (AskEntry[] memory) {
         AskEntry[] memory asks = new AskEntry[](_asksMaps[_nftToken][_quoteToken].length());
         for (uint256 i = 0; i < _asksMaps[_nftToken][_quoteToken].length(); ++i) {
             (uint256 tokenId, uint256 price) = _asksMaps[_nftToken][_quoteToken].at(i);
@@ -578,6 +578,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
 
     function getAsksByNFT(address _nftToken)
         external
+        virtual
         view
         returns (
             address[] memory quotes,
@@ -608,7 +609,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _quoteToken,
         uint256 _page,
         uint256 _size
-    ) external view returns (AskEntry[] memory) {
+    ) external virtual view returns (AskEntry[] memory) {
         if (_asksMaps[_nftToken][_quoteToken].length() > 0) {
             uint256 from = _page == 0 ? 0 : (_page - 1) * _size;
             uint256 to =
@@ -629,7 +630,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _nftToken,
         address _quoteToken,
         address _user
-    ) public view returns (AskEntry[] memory) {
+    ) public virtual view returns (AskEntry[] memory) {
         AskEntry[] memory asks = new AskEntry[](_userSellingTokens[_nftToken][_quoteToken][_user].length());
         for (uint256 i = 0; i < _userSellingTokens[_nftToken][_quoteToken][_user].length(); ++i) {
             uint256 tokenId = _userSellingTokens[_nftToken][_quoteToken][_user].at(i);
@@ -641,6 +642,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
 
     function getUserAsksByNFT(address _nftToken, address _user)
         external
+        virtual
         view
         returns (
             address[] memory quotes,
@@ -670,7 +672,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _nftToken,
         address _quoteToken,
         uint256 _tokenId
-    ) external view returns (uint256) {
+    ) external virtual view returns (uint256) {
         return tokenBids[_nftToken][_quoteToken][_tokenId].length;
     }
 
@@ -678,7 +680,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _nftToken,
         address _quoteToken,
         uint256 _tokenId
-    ) external view returns (BidEntry[] memory) {
+    ) external virtual view returns (BidEntry[] memory) {
         return tokenBids[_nftToken][_quoteToken][_tokenId];
     }
 
@@ -686,7 +688,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         address _nftToken,
         address _quoteToken,
         address _user
-    ) public view returns (UserBidEntry[] memory) {
+    ) public virtual view returns (UserBidEntry[] memory) {
         uint256 length = _userBids[_nftToken][_quoteToken][_user].length();
         UserBidEntry[] memory bids = new UserBidEntry[](length);
         for (uint256 i = 0; i < length; i++) {
@@ -698,6 +700,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
 
     function getUserBidsByNFT(address _nftToken, address _user)
         external
+        virtual
         view
         returns (
             address[] memory quotes,
