@@ -18,11 +18,11 @@ contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
         totalRoyalties = totalRoyalties_;
     }
 
-    function getRoyalties(uint256 tokenId) external view override returns (LibPart.Part[] memory) {
+    function getRoyalties(uint256 tokenId) external virtual view override returns (LibPart.Part[] memory) {
         return royalties[tokenId];
     }
 
-    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external override onlyAllowedNFT returns (bool) {
+    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external virtual override onlyAllowedNFT returns (bool) {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
@@ -36,19 +36,19 @@ contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
         return true;
     }
 
-    function setTotalRoyalties(uint96 _value) public onlyOwner {
+    function setTotalRoyalties(uint96 _value) public virtual onlyOwner {
         totalRoyalties = _value;
     }
 
-    function setAllowedNFT(address _NFTAddress) public onlyOwner {
+    function setAllowedNFT(address _NFTAddress) public virtual onlyOwner {
         allowedNFT = _NFTAddress;
     }
 
-    function getAllowedNFT() public view returns (address) {
+    function getAllowedNFT() public virtual view returns (address) {
         return allowedNFT;
     }
 
-    function getTotalRoyalties() public view returns (uint96) {
+    function getTotalRoyalties() public virtual view returns (uint96) {
         return totalRoyalties;
     }
 
