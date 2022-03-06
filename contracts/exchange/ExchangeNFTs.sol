@@ -7,7 +7,6 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
