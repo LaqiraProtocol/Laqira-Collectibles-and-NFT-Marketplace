@@ -39,6 +39,11 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
     // nft => quotes
     mapping(address => EnumerableSetUpgradeable.AddressSet) private nftQuotes;
 
+    function initialize() public initializer {
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+    }
+
     function setSettings(uint256[] memory keys, uint256[] memory values) external override onlyOwner {
         require(keys.length == values.length, 'length err');
         for (uint256 i; i < keys.length; ++i) {
