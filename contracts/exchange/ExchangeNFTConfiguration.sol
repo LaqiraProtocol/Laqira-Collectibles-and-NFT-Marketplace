@@ -3,12 +3,12 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import './interfaces/IExchangeNFTConfiguration.sol';
 
-contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
-    using EnumerableSet for EnumerableSet.AddressSet;
+contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeable {
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     /**
       global settings
@@ -37,7 +37,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
     // nft => quote => royalties burnable
     mapping(address => mapping(address => bool)) public override royaltiesBurnables;
     // nft => quotes
-    mapping(address => EnumerableSet.AddressSet) private nftQuotes;
+    mapping(address => EnumerableSetUpgradeable.AddressSet) private nftQuotes;
 
     function setSettings(uint256[] memory keys, uint256[] memory values) external override onlyOwner {
         require(keys.length == values.length, 'length err');
@@ -56,7 +56,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, Ownable {
         address[] memory _quotes,
         bool _enable
     ) public override onlyOwner {
-        EnumerableSet.AddressSet storage quotes = nftQuotes[_nftToken];
+        EnumerableSetUpgradeable.AddressSet storage quotes = nftQuotes[_nftToken];
         for (uint256 i; i < _quotes.length; i++) {
             nftQuoteEnables[_nftToken][_quotes[i]] = _enable;
             if (!quotes.contains(_quotes[i])) {
