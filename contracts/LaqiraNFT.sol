@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 
 import "./exchange/royalties/IRoyaltiesProvider.sol";
 
@@ -21,9 +21,9 @@ interface IBEP20 {
     function transfer(address recipient, uint256 amount) external returns (bool);
 }
 
-contract LaqiraNFT is ERC721Enumerable, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
+contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+    CountersUpgradeable.Counter private _tokenIds;
     uint256 private mintingFee;
     address private feeAddress;
     address private royalitiesProviderAddress;
@@ -43,8 +43,16 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
 
     uint256[] private pendingRequests;
     uint256[] private rejectedRequests;
-    constructor(string memory _name, string memory _symbol, address feeAddress_) ERC721(_name, _symbol) {
+
+    function initialize(string memory _name, string memory _symbol, address feeAddress_, uint256 mintingFee_, address royalitiesProviderAddress_) public initializer {
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+        __ERC721Enumerable_init_unchained();
+        __ERC721_init_unchained(_name, _symbol);
+        __ERC165_init_unchained();
         feeAddress = feeAddress_;
+        mintingFee = mintingFee_;
+        royalitiesProviderAddress = royalitiesProviderAddress_;
     }
 
     function mint(string memory _tokenURI, address[] memory royaltyOwners, uint96[] memory values) public payable {
@@ -83,9 +91,9 @@ contract LaqiraNFT is ERC721Enumerable, Ownable {
     }
 
     function burn(uint256 tokenId) public onlyOwner {
-       _rejectedIds[tokenId].owner = ERC721.ownerOf(tokenId);
+       _rejectedIds[tokenId].owner = ERC721Upgradeable.ownerOf(tokenId);
        _rejectedIds[tokenId].tokenURI = tokenURI(tokenId);
-       _userRejectedIds[ERC721.ownerOf(tokenId)].push(tokenId);
+       _userRejectedIds[ERC721Upgradeable.ownerOf(tokenId)].push(tokenId);
        rejectedRequests.push(tokenId);
        _burn(tokenId);
     }
