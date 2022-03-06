@@ -3,23 +3,23 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '@openzeppelin/contracts/utils/math/Math.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
-import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import '@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol';
-import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
-import '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol';
 import './libraries/EnumerableMap.sol';
 import './libraries/ExchangeNFTsHelper.sol';
 import './interfaces/IExchangeNFTs.sol';
 import './interfaces/IExchangeNFTConfiguration.sol';
 import './royalties/IRoyaltiesProvider.sol';
-contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
-    using SafeMath for uint256;
+contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradeable, ReentrancyGuardUpgradeable {
+    using SafeMathUpgradeable for uint256;
     using EnumerableMap for EnumerableMap.UintToUintMap;
-    using EnumerableSet for EnumerableSet.UintSet;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
 
     struct SettleTrade {
         address nftToken;
@@ -55,7 +55,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
     // nft => quote => tokenId,price
     mapping(address => mapping(address => EnumerableMap.UintToUintMap)) private _asksMaps;
     // nft => quote => seller => tokenIds
-    mapping(address => mapping(address => mapping(address => EnumerableSet.UintSet)))
+    mapping(address => mapping(address => mapping(address => EnumerableSetUpgradeable.UintSet)))
         private _userSellingTokens;
     // nft => quote => tokenId => bid
     mapping(address => mapping(address => mapping(uint256 => BidEntry[]))) public tokenBids;
@@ -64,7 +64,11 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
     // nft => tokenId => status (0 - can sell and bid, 1 - only bid)
     mapping(address => mapping(uint256 => uint256)) tokenSelleStatus;
 
-    constructor(address _config) {
+    function initialize(address _config) public initializer {
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+        __ReentrancyGuard_init_unchained();
+        __ERC721Holder_init_unchained();
         config = IExchangeNFTConfiguration(_config);
     }
 
@@ -136,9 +140,9 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
     ) public override nonReentrant {
         config.whenSettings(0, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
-        require(_msgSender() == IERC721(_nftToken).ownerOf(_tokenId), 'Only Token Owner can sell token');
+        require(_msgSender() == IERC721Upgradeable(_nftToken).ownerOf(_tokenId), 'Only Token Owner can sell token');
         require(_price != 0, 'Price must be granter than zero');
-        IERC721(_nftToken).safeTransferFrom(_msgSender(), address(this), _tokenId);
+        IERC721Upgradeable(_nftToken).safeTransferFrom(_msgSender(), address(this), _tokenId);
         _asksMaps[_nftToken][_quoteToken].set(_tokenId, _price);
         tokenSellers[_nftToken][_tokenId] = _to;
         tokenSelleOn[_nftToken][_tokenId] = _quoteToken;
@@ -270,7 +274,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         _userSellingTokens[settleTrade.nftToken][settleTrade.quoteToken][settleTrade.seller].remove(
             settleTrade.tokenId
         );
-        IERC721(settleTrade.nftToken).safeTransferFrom(
+        IERC721Upgradeable(settleTrade.nftToken).safeTransferFrom(
             address(this),
             settleTrade.buyer,
             settleTrade.tokenId
@@ -334,7 +338,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
     function cancelSellToken(address _nftToken, uint256 _tokenId) public override nonReentrant {
         config.whenSettings(3, 0);
         require(tokenSellers[_nftToken][_tokenId] == _msgSender(), 'Only Seller can cancel sell token');
-        IERC721(_nftToken).safeTransferFrom(address(this), _msgSender(), _tokenId);
+        IERC721Upgradeable(_nftToken).safeTransferFrom(address(this), _msgSender(), _tokenId);
         _userSellingTokens[_nftToken][tokenSelleOn[_nftToken][_tokenId]][_msgSender()].remove(_tokenId);
         emit CancelSellToken(
             _nftToken,
@@ -609,7 +613,7 @@ contract ExchangeNFTs is IExchangeNFTs, Ownable, ERC721Holder, ReentrancyGuard {
         if (_asksMaps[_nftToken][_quoteToken].length() > 0) {
             uint256 from = _page == 0 ? 0 : (_page - 1) * _size;
             uint256 to =
-                Math.min((_page == 0 ? 1 : _page) * _size, _asksMaps[_nftToken][_quoteToken].length());
+                MathUpgradeable.min((_page == 0 ? 1 : _page) * _size, _asksMaps[_nftToken][_quoteToken].length());
             AskEntry[] memory asks = new AskEntry[]((to - from));
             for (uint256 i = 0; from < to; ++i) {
                 (uint256 tokenId, uint256 price) = _asksMaps[_nftToken][_quoteToken].at(from);
