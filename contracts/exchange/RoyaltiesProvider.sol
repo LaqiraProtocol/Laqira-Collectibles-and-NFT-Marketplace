@@ -9,12 +9,13 @@ import './royalties/IRoyaltiesProvider.sol';
 
 contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
     address private allowedNFT;
-    mapping(uint256 => LibPart.Part[]) private royalties;
     uint96 private totalRoyalties;
+    mapping(uint256 => LibPart.Part[]) private royalties;
 
-    function initialize() public initializer {
+    function initialize(uint96 totalRoyalties_) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
+        totalRoyalties = totalRoyalties_;
     }
 
     function getRoyalties(uint256 tokenId) external view override returns (LibPart.Part[] memory) {
