@@ -13,7 +13,8 @@ contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
     uint96 private totalRoyalties;
 
     function initialize() public initializer {
-        __Ownable_init();
+        __Context_init_unchained();
+        __Ownable_init_unchained();
     }
 
     function getRoyalties(uint256 tokenId) external view override returns (LibPart.Part[] memory) {
