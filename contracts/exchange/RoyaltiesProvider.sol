@@ -22,7 +22,8 @@ contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
         return royalties[tokenId];
     }
 
-    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external virtual override onlyAllowedNFT returns (bool) {
+    function setRoyalties(uint256 tokenId, address[] calldata royaltyOwners, uint96[] calldata values) external
+    virtual override onlyAllowedNFT returns (bool) {
         require(royaltyOwners.length == values.length, 'Invalid length');
         uint96 _totalRoyalties;
         for (uint256 i = 0; i < values.length; i++) {
