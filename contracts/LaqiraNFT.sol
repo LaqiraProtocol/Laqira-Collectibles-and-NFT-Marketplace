@@ -26,7 +26,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     CountersUpgradeable.Counter private _tokenIds;
     uint256 private mintingFee;
     address private feeAddress;
-    address private royalitiesProviderAddress;
+    address private royaltiesProviderAddress;
 
     mapping(uint256 => string) private _tokenURIs;
     mapping(address => uint256[]) private _userPendingIds;
@@ -44,7 +44,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     uint256[] private pendingRequests;
     uint256[] private rejectedRequests;
 
-    function initialize(string memory _name, string memory _symbol, address feeAddress_, uint256 mintingFee_, address royalitiesProviderAddress_) public initializer {
+    function initialize(string memory _name, string memory _symbol, address feeAddress_, uint256 mintingFee_, address royaltiesProviderAddress_) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
         __ERC721Enumerable_init_unchained();
@@ -52,7 +52,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         __ERC165_init_unchained();
         feeAddress = feeAddress_;
         mintingFee = mintingFee_;
-        royalitiesProviderAddress = royalitiesProviderAddress_;
+        royaltiesProviderAddress = royaltiesProviderAddress_;
     }
 
     function mint(string memory _tokenURI, address[] memory royaltyOwners, uint96[] memory values) public virtual payable {
@@ -72,7 +72,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         _pendingIds[newTokenId].tokenURI = _tokenURI;
         _userPendingIds[_msgSender()].push(newTokenId);
         
-        IRoyaltiesProvider(royalitiesProviderAddress).setRoyalties(newTokenId, royaltyOwners, values);
+        IRoyaltiesProvider(royaltiesProviderAddress).setRoyalties(newTokenId, royaltyOwners, values);
     }
     /**
         This function will be used only by owner to revive NFT ids which have been rejected by operator
@@ -151,12 +151,12 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         return true;
     }
 
-    function setRoyalitiesProviderAddress(address _royalitiesProviderAddress) public virtual onlyOwner {
-        royalitiesProviderAddress = _royalitiesProviderAddress;
+    function setRoyaltiesProviderAddress(address _royaltiesProviderAddress) public virtual onlyOwner {
+        royaltiesProviderAddress = _royaltiesProviderAddress;
     }
 
-    function getRoyalitiesProviderAddress() public virtual view returns (address) {
-        return royalitiesProviderAddress;
+    function getRoyaltiesProviderAddress() public virtual view returns (address) {
+        return royaltiesProviderAddress;
     }
 
     function getFeeAddress() public virtual view returns (address) {
