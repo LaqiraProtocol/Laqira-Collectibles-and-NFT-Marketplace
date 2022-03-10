@@ -22,6 +22,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.0",
     "@openzeppelin/contracts-upgradeable": "^4.4.0",
-    "@openzeppelin/hardhat-upgrades": "^1.15.0"
+    "@openzeppelin/hardhat-upgrades": "^1.15.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
+    "bn-chai": "^1.0.1"
   }
 }
