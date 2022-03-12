@@ -140,7 +140,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
         config.whenSettings(0, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
         require(_msgSender() == IERC721Upgradeable(_nftToken).ownerOf(_tokenId), 'Only Token Owner can sell token');
-        require(_price != 0, 'Price must be granter than zero');
+        require(_price != 0, 'Price must be greater than zero');
         IERC721Upgradeable(_nftToken).safeTransferFrom(_msgSender(), address(this), _tokenId);
         _asksMaps[_nftToken][_quoteToken].set(_tokenId, _price);
         tokenSellers[_nftToken][_tokenId] = _to;
@@ -179,7 +179,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
             _userSellingTokens[_nftToken][_quoteToken][_msgSender()].contains(_tokenId),
             'Only Seller can update price'
         );
-        require(_price != 0, 'Price must be granter than zero');
+        require(_price != 0, 'Price must be greater than zero');
         _asksMaps[_nftToken][_quoteToken].set(_tokenId, _price);
         emit Ask(_nftToken, _msgSender(), _tokenId, _quoteToken, _price);
     }
@@ -398,7 +398,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
     ) public virtual payable override nonReentrant {
         config.whenSettings(4, 0);
         config.checkEnableTrade(_nftToken, _quoteToken);
-        require(_price != 0, 'Price must be granter than zero');
+        require(_price != 0, 'Price must be greater than zero');
         require(_asksMaps[_nftToken][_quoteToken].contains(_tokenId), 'Token not in sell book');
         require(tokenSellers[_nftToken][_tokenId] != _to, 'Owner cannot bid');
         require(!_userBids[_nftToken][_quoteToken][_to].contains(_tokenId), 'Bidder already exists');
@@ -444,7 +444,7 @@ contract ExchangeNFTs is IExchangeNFTs, OwnableUpgradeable, ERC721HolderUpgradea
             _userBids[_nftToken][_quoteToken][_msgSender()].contains(_tokenId),
             'Only Bidder can update the bid price'
         );
-        require(_price != 0, 'Price must be granter than zero');
+        require(_price != 0, 'Price must be greater than zero');
         address _to = _msgSender(); // find  bid and the index
         (BidEntry memory bidEntry, uint256 _index) = getBidByTokenIdAndAddress(_nftToken, _quoteToken, _tokenId, _to);
         require(bidEntry.price != 0, 'Bidder does not exist');
