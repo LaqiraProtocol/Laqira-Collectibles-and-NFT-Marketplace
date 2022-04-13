@@ -41,7 +41,9 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
     uint256[] private pendingRequests;
     uint256[] private rejectedRequests;
-
+    
+    event MintingFeeSet(uint256 _from, uint256 _to);
+    
     function initialize(string memory _name, string memory _symbol, address feeAddress_, uint256 mintingFee_, address royaltiesProviderAddress_) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
@@ -119,6 +121,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     }
 
     function setMintingFeeAmount(uint256 _amount) public virtual onlyOwner {
+        emit MintingFeeSet(mintingFee, _amount);
         mintingFee = _amount;
     }
 
