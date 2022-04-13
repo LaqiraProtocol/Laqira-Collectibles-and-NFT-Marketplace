@@ -57,6 +57,13 @@ describe("LaqiraNFT", function () {
             expect(result['tokenURI']).to.equal(tokenURI);
         });
 
+        it('getRoyalties', async function () {
+            await tokenContract.connect(user1).mint(tokenURI, [user1.address], ['10'], {value: mintingFee});
+            const result = await royaltiesContract.getRoyalties('1');
+            expect(result[0]['account']).to.equal(user1.address);
+            expect(result[0]['value']).to.equal('10');
+        });
+
         it('userPendingRequests', async function () {
             await tokenContract.connect(user1).mint(tokenURI, [user1.address], ['0'], {value: mintingFee});
             const values = await tokenContract.getUserPendingIds(user1.address);
