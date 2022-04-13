@@ -138,6 +138,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
         address _quoteToken,
         address _royaltiesProvider
     ) public virtual override onlyOwner {
+        require(_royaltiesProvider != address(0), 'Zero address is not allowed');
         emit SetRoyaltiesProvider(
             _nftToken,
             _quoteToken,
