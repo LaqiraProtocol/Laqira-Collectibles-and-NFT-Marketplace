@@ -34,6 +34,7 @@ interface IExchangeNFTConfiguration {
     );
     event UpdateSettings(uint256 indexed setting, uint256 proviousValue, uint256 value);
     event NFTTradeStatus(address _nftToken, bool _enable);
+    event NFTQuoteSet(address _nftToken, address _quote, bool _enable);
 
     struct NftSettings {
         bool enable;

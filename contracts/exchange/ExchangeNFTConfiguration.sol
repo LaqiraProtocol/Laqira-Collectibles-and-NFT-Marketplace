@@ -64,10 +64,11 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
     ) public virtual override onlyOwner {
         EnumerableSetUpgradeable.AddressSet storage quotes = nftQuotes[_nftToken];
         for (uint256 i; i < _quotes.length; i++) {
-            nftQuoteEnables[_nftToken][_quotes[i]] = _enable;
+            nftQuoteEnables[_nftToken][_quotes[i]] = _enable;   
             if (!quotes.contains(_quotes[i])) {
                 quotes.add(_quotes[i]);
             }
+            emit NFTQuoteSet(_nftToken, _quotes[i], _enable);
         }
     }
 
