@@ -70,7 +70,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         _pendingIds[newTokenId].tokenURI = _tokenURI;
         _userPendingIds[_msgSender()].push(newTokenId);
         
-        IRoyaltiesProvider(royaltiesProviderAddress).setRoyalties(newTokenId, royaltyOwners, values);
+        require(IRoyaltiesProvider(royaltiesProviderAddress).setRoyalties(newTokenId, royaltyOwners, values), 'An error occurred in setting royalties');
     }
     /**
         This function will be used only by owner to revive NFT ids which have been rejected by operator
