@@ -154,6 +154,7 @@ contract LaqiraNFT is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     }
 
     function setRoyaltiesProviderAddress(address _royaltiesProviderAddress) public virtual onlyOwner {
+        require(_royaltiesProviderAddress != address(0), 'Zero address is not allowed');
         royaltiesProviderAddress = _royaltiesProviderAddress;
     }
 
