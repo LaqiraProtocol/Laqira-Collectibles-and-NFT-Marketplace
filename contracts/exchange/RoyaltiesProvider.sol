@@ -38,6 +38,7 @@ contract RoyaltiesProvider is IRoyaltiesProvider, OwnableUpgradeable {
     }
 
     function setTotalRoyalties(uint96 _value) public virtual onlyOwner {
+        emit TotalRoyaltiesSet(totalRoyalties, _value);
         totalRoyalties = _value;
     }
 
