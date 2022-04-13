@@ -54,6 +54,7 @@ contract ExchangeNFTConfiguration is IExchangeNFTConfiguration, OwnableUpgradeab
 
     function setNftEnables(address _nftToken, bool _enable) public virtual override onlyOwner {
         nftEnables[_nftToken] = _enable;
+        emit NFTTradeStatus(_nftToken, _enable);
     }
 
     function setNftQuoteEnables(

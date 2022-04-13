@@ -33,6 +33,7 @@ interface IExchangeNFTConfiguration {
         bool newFeeRoyaltiesBurnable
     );
     event UpdateSettings(uint256 indexed setting, uint256 proviousValue, uint256 value);
+    event NFTTradeStatus(address _nftToken, bool _enable);
 
     struct NftSettings {
         bool enable;
